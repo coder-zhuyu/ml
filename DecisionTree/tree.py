@@ -1,6 +1,7 @@
 # encoding: utf-8
 from math import log
 import operator
+import tree_plotter
 
 
 def create_data_set():
@@ -117,10 +118,44 @@ def classify(input_tree, feat_labels, test_vec):
     return class_label
 
 
+# 存储决策树
+def store_tree(input_tree, filename):
+    import pickle
+    fw = open(filename, 'w')
+    pickle.dump(input_tree, fw)
+    fw.close()
+
+
+def grab_tree(filename):
+    import pickle
+    fr = open(filename)
+    return pickle.load(fr)
+
+
+# 决策树预测隐形眼镜类型
+def glass_tree(filename):
+    fr = open(filename)
+    lenses = [inst.strip().split('\t') for inst in fr.readlines()]
+    lenses_labels = ['age', 'prescript', 'astigmatic', 'tearRate']
+    lenses_tree = create_tree(lenses, lenses_labels)
+    return lenses_tree
+
+
 if __name__ == '__main__':
     my_dat, labels = create_data_set()
     # print(calc_shannon_ent(my_dat))
     # print(split_data_set(my_dat, 0, 1))
     # print(split_data_set(my_dat, 0, 0))
     # print(choose_best_feature_to_split(my_dat))
-    print(create_tree(my_dat, labels))
+    # my_tree = create_tree(my_dat, labels)
+    # print(my_tree)
+    '''
+    my_tree = tree_plotter.retrieve_tree(0)
+    store_tree(my_tree, 'classifier_storage.txt')
+    print(grab_tree('classifier_storage.txt'))
+    '''
+
+    lenses_tree = glass_tree('lenses.txt')
+    print(lenses_tree)
+
+    tree_plotter.create_plot(lenses_tree)
