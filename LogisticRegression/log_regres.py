@@ -99,10 +99,54 @@ def classify_vector(in_x, weights):
         return 0.0
 
 
+# 从疝气病症预测马的死亡率
+def colic_test():
+    fr_train = open('horseColicTraining.txt')       # 训练数据
+    fr_test = open('horseColicTest.txt')            # 测试数据
+    training_set = []
+    training_labels = []
+    # 读取训练数据
+    for line in fr_train.readlines():
+        curr_line = line.strip().split('\t')
+        line_arr = []
+        for i in range(21):
+            line_arr.append(float(curr_line[i]))
+        training_set.append(line_arr)
+        training_labels.append(float(curr_line[21]))
+    # 计算回归系数
+    train_weights = stoc_grad_ascent1(array(training_set), training_labels, 1000)
+    # 在测试数据上验证
+    error_count = 0
+    num_test_vec = 0.0
+    for line in fr_test.readlines():
+        num_test_vec += 1.0
+        curr_line = line.strip().split('\t')
+        line_arr = []
+        for i in range(21):
+            line_arr.append(float(curr_line[i]))
+        if int(classify_vector(array(line_arr), train_weights)) != int(curr_line[21]):
+            error_count += 1
+    error_rate = (float(error_count)/num_test_vec)
+    print "the error rate of this test is: %f" % error_rate
+    return error_rate
+
+
+# 多次测试取平均值
+def multi_test():
+    num_tests = 10
+    error_sum = 0.0
+    for k in range(num_tests):
+        error_sum += colic_test()
+    print "after %d iterations the average error rate is: %f" % (num_tests, error_sum/float(num_tests))
+
+
 if __name__ == '__main__':
+    '''
     data_arr, label_mat = load_data_set()
     # weights = grad_ascent(data_arr, label_mat)
     # weights = stoc_grad_ascent0(array(data_arr), label_mat)
     weights = stoc_grad_ascent1(array(data_arr), label_mat)
     print(weights)
     plot_best_fit(weights)
+    '''
+    multi_test()
